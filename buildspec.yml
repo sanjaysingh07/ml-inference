@@ -1,0 +1,31 @@
+version: 0.2
+
+
+phases:
+  install:
+    commands:
+      - echo Entered the install phase..
+      - yum install -y git
+      - git clone https://github.com/sanjaysingh07/ml-inference.git
+  pre_build:
+    commands:
+      - cd ml-inference
+      - ls -l
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - image=arima_deploy_sample
+      - account=$(aws sts get-caller-identity --query Account --output text)
+      - region=${region:-ap-south-1}
+      - fullname="${account}.dkr.ecr.${region}.amazonaws.com/${image}:latest"
+      - aws ecr get-login-password --region "${region}" | docker login --username AWS --password-stdin "${account}".dkr.ecr."${region}".amazonaws.com
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build  -t ${image} .
+      - docker tag ${image} ${fullname}
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push ${fullname}
