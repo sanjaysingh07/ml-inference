@@ -15,7 +15,7 @@ phases:
       - aws --version
       - image=arima_deploy_sample
       - account=$(aws sts get-caller-identity --query Account --output text)
-      - region=${region:-ap-south-1}
+      - region=${region:-ap-southeast-1}
       - fullname="${account}.dkr.ecr.${region}.amazonaws.com/${image}:latest"
       - aws ecr get-login-password --region "${region}" | docker login --username AWS --password-stdin "${account}".dkr.ecr."${region}".amazonaws.com
   build:
